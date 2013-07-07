@@ -35,10 +35,33 @@ class Results(webapp2.RequestHandler):
         page = urlfetch.fetch(url).content
         soup = BeautifulSoup(page)
         tables = soup.find_all('table')
-        self.response.write(tables[5].content)
+        btech = tables[4].find_all('a')
+        bpharm = tables[5].find_all('a')
+        barch = tables[7].find_all('a')
+        mba = tables[8].find_all('a')
+        mca = tables[9].find_all('a')
+
+        self.response.write("""<h2>B.Tech</h2>
+                                %s
+                                <hr>
+                                <h2>B.Pharm</h2>
+                                %s
+                                <hr>
+                                <h2>B.Arch</h2>
+                                %s
+                                <hr>
+                                <h2>MBA</h2>
+                                %s
+                                <hr>
+                                <h2>MCA</h2>
+                                %s
+                                <hr>
+
+            """ %(btech, bpharm, barch, mba, mca))
 
 
-app = webapp2.WSGIApplication([('/notice', Hibiscus), ('/', Results)],
+app = webapp2.WSGIApplication([('/notice', Hibiscus),
+                                ('/', Results)],
                               debug=True)
                               
                               
