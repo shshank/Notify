@@ -2,8 +2,67 @@ import cgi
 import webapp2
 import json
 from bs4 import BeautifulSoup
-from urllib import urlopen
 from google.appengine.api import urlfetch 
+from google.appengine.ext import ndb
+
+
+NOTICE = "IIIT"
+RESULT_NAME = "BPUT"
+
+def parse_results(result_list):
+    results = []
+    for item in result_list:
+        results.append((item['href'], item.contents[0]))
+    return results
+
+def fetch_results():
+    url = "http://results.bput.ac.in/"
+    page = urlfetch.fetch(url).content
+    soup = BeautifulSoup(page)
+    tables = soup.find_all('table', {'class':"formTextWithBorder"})
+    btech = parse_results(tables[0].find_all('a'))
+    bpharm = parse_results(tables[1].find_all('a'))
+    barch = parse_results(tables[2].find_all('a'))
+    mba = parse_results(tables[3].find_all('a'))
+    mca = parse_results(tables[4].find_all('a'))
+    #data = {'btech':btech , 'bpharm':bpharm , 'barch':barch , 'mba':mba , 'mca':mca}
+    return btech
+
+
+
+def get_course(course):
+    course_name = course.upper()
+    if course_name in "BTECH B.TECH":
+        return 1
+    elif course_name in "BPHARM B.PHARM":
+        return 2
+    elif course_name in "BARCH B.ARCH":
+        return 3
+    elif course_name in "MBA M.B.A":
+        return 4
+    elif course_name in "MCA M.C.A":
+        return 5
+
+def Group_key(Group_name):
+    return ndb.Key('Group_name', Group_name)
+
+class Result(ndb.Model):
+    url = ndb.StringProperty()
+    posted_on = ndb.DateTimeProperty(auto_now_add=True)
+    name = ndb.StringProperty()
+    course = ndb.IntegerProperty()
+
+def Insert_Result(url, name, course):
+    result = Result(parent=Group_key(RESULT_NAME))
+    result.url = url
+    result.name = name
+    result.course = get_course(course)
+    result.put
+
+def Check_New_Results(course):
+    result_query = Result.query(ancestor=Group_key(RESULT_NAME), course = get_course(course)).order(-Result.posted_on)
+    latest_results = result_query.fetch(3)
+
 
 
 
@@ -31,33 +90,12 @@ class Hibiscus(webapp2.RequestHandler):
 
 class Results(webapp2.RequestHandler):
     def get(self):
-        url = "http://results.bput.ac.in/"
-        page = urlfetch.fetch(url).content
-        soup = BeautifulSoup(page)
-        tables = soup.find_all('table')
-        btech = tables[4].find_all('a')
-        bpharm = tables[5].find_all('a')
-        barch = tables[7].find_all('a')
-        mba = tables[8].find_all('a')
-        mca = tables[9].find_all('a')
+        results = fetch_results()
 
-        self.response.write("""<h2>B.Tech</h2>
-                                %s
-                                <hr>
-                                <h2>B.Pharm</h2>
-                                %s
-                                <hr>
-                                <h2>B.Arch</h2>
-                                %s
-                                <hr>
-                                <h2>MBA</h2>
-                                %s
-                                <hr>
-                                <h2>MCA</h2>
-                                %s
-                                <hr>
 
-            """ %(btech, bpharm, barch, mba, mca))
+
+        self.response.write("""%s
+            """ %(results))
 
 
 app = webapp2.WSGIApplication([('/notice', Hibiscus),
