@@ -54,6 +54,7 @@ def fetch_results():
     mba = parse_results(tables[3].find_all('a'))
     mca = parse_results(tables[4].find_all('a'))
     #data = {'btech':btech , 'bpharm':bpharm , 'barch':barch , 'mba':mba , 'mca':mca}
+    #returning only btech to test
     return btech
 
 def Insert_Result(url, name, course):
@@ -63,14 +64,16 @@ def Insert_Result(url, name, course):
     result.course = get_course(course)
     result.put
 
+
 def Check_New_Results(course):
     result_query = Result.query(ancestor=Group_key(RESULT_NAME), course = get_course(course)).order(-Result.posted_on)
     latest_results = result_query.fetch(3)
+    #now check with first 3 in the page.
     
 
 
 
-
+#this is just to test if the scraping is being done right.
 class Results(webapp2.RequestHandler):
     def get(self):
         btech = fetch_results()
