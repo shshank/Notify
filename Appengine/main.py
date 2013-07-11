@@ -64,8 +64,17 @@ def Check_New_Results(course):
     latest_results = result_query.fetch(3)
 
 
+class Results(webapp2.RequestHandler):
+    def get(self):
+        results = fetch_results()
 
 
+        self.response.write("""%s
+            """ %(results))
+
+
+
+#class for IIIT noticeboard.
 class Hibiscus(webapp2.RequestHandler):
 
     def get(self):
@@ -88,14 +97,7 @@ class Hibiscus(webapp2.RequestHandler):
     	self.response.write(body)
     	self.response.write(json.dumps(notice))
 
-class Results(webapp2.RequestHandler):
-    def get(self):
-        results = fetch_results()
 
-
-
-        self.response.write("""%s
-            """ %(results))
 
 
 app = webapp2.WSGIApplication([('/notice', Hibiscus),
@@ -103,11 +105,3 @@ app = webapp2.WSGIApplication([('/notice', Hibiscus),
                               debug=True)
                               
                               
- 
-
- 
-                              
-#<iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
-#src="https://maps.google.com/maps?q=10.0,100.0&amp;t=k&amp;ie=UTF8&amp;z=14&amp;ll=10,100&amp;output=embed">
-#</iframe><br /><small>
-#<a href="https://maps.google.com/maps?q=10.0,100.0&amp;t=k&amp;ie=UTF8&amp;z=14&amp;ll=10,100&amp;source=embed" style="color:#0000FF;text-align:left">View Larger Map</a></small>
