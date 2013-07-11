@@ -1,9 +1,14 @@
 import cgi
 import webapp2
-import json
+import os
+import jinja2
 from bs4 import BeautifulSoup
 from google.appengine.api import urlfetch 
 from google.appengine.ext import ndb
+
+JINJA_ENV = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'])
 
 
 NOTICE = "IIIT"
@@ -68,11 +73,12 @@ def Check_New_Results(course):
 
 class Results(webapp2.RequestHandler):
     def get(self):
-        results = fetch_results()
+        btech = fetch_results()
+        
+        template_values = {'btech':btech}
 
-
-        self.response.write("""%s
-            """ %(results))
+        template = JINJA_ENV.get_template('templates/results.html')
+        self.response.write(template.render(template_values))
 
 
 
